@@ -2287,7 +2287,7 @@ document.addEventListener("keydown",function(e){
     <div class="ctz-sub">Arma tu cotización y recíbela por WhatsApp.</div>
     <div class="ctz-lbl">Color</div><div class="ctz-row" id="ctzColores"></div>
     <div class="ctz-lbl">Cantidad</div><div class="ctz-row" id="ctzQty"></div>
-    <div class="ctz-lbl">Elige tu casco — el CYCLONE va incluido; los demás suman su precio</div>
+    <div class="ctz-lbl">Elige tu casco — los demás suman su precio</div>
     <div class="ctz-cascos" id="ctzCascoGrid"></div>
     <div class="ctz-lbl">Talla</div><div class="ctz-row" id="ctzCascoTalla"></div>
     <button class="ctz-send" onclick="sendCotizar()">💬 Enviar cotización por WhatsApp</button>
@@ -2363,10 +2363,9 @@ function sendCotizar(){
   var talla=ctzVal('ctzCascoTalla')||'M';
   var lines=["Hola, quiero una cotización de la BERA "+c.nombre+".",
     "• Color: "+ctzVal('ctzColores'),
-    "• Cantidad: "+ctzVal('ctzQty'),
-    "• Incluye: trámite de placa, póliza de seguro y cinta reflectiva"];
+    "• Cantidad: "+ctzVal('ctzQty')];
   if(mod==='CYCLONE'){
-    lines.push("• Casco incluido: CYCLONE "+col+" · talla "+talla);
+    lines.push("• Casco: CYCLONE "+col+" · talla "+talla);
   }else{
     var precio=CTZ_CASCOS[mod].colores[col];
     lines.push("• Casco mejorado: "+mod+" "+col+" · talla "+talla+" (adicional +$"+precio.toFixed(2)+")");
