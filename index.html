@@ -2382,14 +2382,27 @@ function sendCotizar(){
     "• Correo: "+email,
     "• Teléfono: "+tel,
     "¡Gracias!"];
+  var color=ctzVal('ctzColores'), qty=ctzVal('ctzQty');
   var body=lines.join("\n");
-  // Enviar por correo a gerardo@ (abre la app de correo con todo escrito)
-  var subject="Solicitud de cotización — BERA "+c.nombre;
-  var a=document.createElement('a');
-  a.href="mailto:gerardo@beramotorcyclespanama.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   // Enviar por WhatsApp (igual que antes)
   window.open("https://wa.me/50760259864?text="+encodeURIComponent(body),"_blank");
+  // Enviar por correo a gerardo@ automáticamente (Web3Forms)
+  fetch("https://api.web3forms.com/submit",{
+    method:"POST",
+    headers:{"Content-Type":"application/json",Accept:"application/json"},
+    body:JSON.stringify({
+      access_key:"77d517d4-7bb4-4552-87de-4aaa023a91b8",
+      subject:"Solicitud de cotización — BERA "+c.nombre,
+      from_name:"Cotizador web BERA",
+      email:email,
+      "Modelo":c.nombre,
+      "Color":color,
+      "Cantidad":qty,
+      "Correo del cliente":email,
+      "Teléfono del cliente":tel,
+      "message":body
+    })
+  }).catch(function(){});
   closeCotizar();
 }
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeCotizar();});
