@@ -2263,6 +2263,11 @@ document.addEventListener("keydown",function(e){
 .ctz-row{display:flex;gap:8px;flex-wrap:wrap}
 .ctz-opt{padding:9px 16px;border-radius:8px;border:1.5px solid rgba(255,255,255,.12);background:transparent;color:#c9c9cd;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
 .ctz-opt.on{background:#FFD100;color:#000;border-color:#FFD100}
+.ctz-input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;font-family:inherit;font-size:14px;margin-bottom:9px;transition:.15s}
+.ctz-input::placeholder{color:#86868B}
+.ctz-input:focus{outline:none;border-color:#FFD100}
+.ctz-input.err{border-color:#ff4d4d;background:rgba(255,77,77,.08)}
+.ctz-err{color:#ff6b6b;font-size:12.5px;font-weight:600;margin:2px 0 0;min-height:0}
 .ctz-check{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:14px;color:#fff}
 .ctz-check input{accent-color:#FFD100;width:17px;height:17px}
 .ctz-check small{color:#86868B;margin-left:auto}
@@ -2284,10 +2289,14 @@ document.addEventListener("keydown",function(e){
   <div class="ctz-card ctz-inner">
     <button class="ctz-x" onclick="closeCotizar()">✕</button>
     <div class="ctz-h" id="ctzTitle">Cotizar</div>
-    <div class="ctz-sub">Arma tu cotización y recíbela por WhatsApp.</div>
+    <div class="ctz-sub">Arma tu cotización y solicítala.</div>
     <div class="ctz-lbl">Color</div><div class="ctz-row" id="ctzColores"></div>
     <div class="ctz-lbl">Cantidad</div><div class="ctz-row" id="ctzQty"></div>
-    <button class="ctz-send" onclick="sendCotizar()">💬 Enviar cotización por WhatsApp</button>
+    <div class="ctz-lbl">Tus datos (obligatorio)</div>
+    <input class="ctz-input" id="ctzEmail" type="email" inputmode="email" autocomplete="email" placeholder="Correo electrónico">
+    <input class="ctz-input" id="ctzTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="Número de teléfono">
+    <div class="ctz-err" id="ctzErr"></div>
+    <button class="ctz-send" onclick="sendCotizar()">Solicitar cotización</button>
   </div>
 </div>
 <script>
@@ -2352,11 +2361,35 @@ function goCotizar(key){openCotizar(key);}
 function closeCotizar(){document.getElementById('ctzOverlay').classList.remove('open');}
 function sendCotizar(){
   var c=CTZ_CFG[ctzModel];
+  var emailEl=document.getElementById('ctzEmail');
+  var telEl=document.getElementById('ctzTel');
+  var errEl=document.getElementById('ctzErr');
+  var email=(emailEl.value||'').trim();
+  var tel=(telEl.value||'').trim();
+  var emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  var telOk=tel.replace(/[^0-9]/g,'').length>=7;
+  emailEl.classList.toggle('err',!emailOk);
+  telEl.classList.toggle('err',!telOk);
+  if(!emailOk||!telOk){
+    errEl.textContent=!emailOk&&!telOk?'Ingresa un correo y un teléfono válidos.':(!emailOk?'Ingresa un correo electrónico válido.':'Ingresa un número de teléfono válido.');
+    (!emailOk?emailEl:telEl).focus();
+    return;
+  }
+  errEl.textContent='';
   var lines=["Hola, quiero una cotización de la BERA "+c.nombre+".",
     "• Color: "+ctzVal('ctzColores'),
-    "• Cantidad: "+ctzVal('ctzQty')];
-  lines.push("¡Gracias!");
-  window.open("https://wa.me/50760259864?text="+encodeURIComponent(lines.join("\n")),"_blank");
+    "• Cantidad: "+ctzVal('ctzQty'),
+    "• Correo: "+email,
+    "• Teléfono: "+tel,
+    "¡Gracias!"];
+  var body=lines.join("\n");
+  // Enviar por correo a gerardo@ (abre la app de correo con todo escrito)
+  var subject="Solicitud de cotización — BERA "+c.nombre;
+  var a=document.createElement('a');
+  a.href="mailto:gerardo@beramotorcyclespanama.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  // Enviar por WhatsApp (igual que antes)
+  window.open("https://wa.me/50760259864?text="+encodeURIComponent(body),"_blank");
   closeCotizar();
 }
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeCotizar();});
